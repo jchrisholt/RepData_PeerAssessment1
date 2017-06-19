@@ -27,8 +27,12 @@ activity_raw$date <- ymd(activity_raw$date)
 
 ```r
 # histogram of total steps taken
-ggplot(data= activity_raw, aes(steps)) + geom_histogram() +
-    ggtitle("Frequency of Steps Taken")
+act_mm <- activity_raw %>% 
+    group_by(date) %>% 
+    summarize(steps_summed = sum(steps, na.rm=TRUE))
+
+ggplot(data=act_mm, aes(steps_summed)) + geom_histogram() +
+    ggtitle("Frequency of Steps Taken") + xlab("Steps")
 ```
 
 ```
@@ -40,12 +44,12 @@ ggplot(data= activity_raw, aes(steps)) + geom_histogram() +
 ### The mean and median of total number of steps taken per day
 
 ```r
-apd <- mean(activity_raw$steps, na.rm = TRUE)
-mpd <- median(activity_raw$steps, na.rm = TRUE)
+apd <- mean(act_mm$steps_summed, na.rm = TRUE)
+mpd <- median(act_mm$steps_summed, na.rm = TRUE)
 ```
   
-* Mean: 37.3825996  
-* Median: 0
+* Mean: 9354.2295082  
+* Median: 10395
 
 ## What is the average daily activity pattern?
 
@@ -78,9 +82,14 @@ act$steps <- ifelse(is.na(act$steps) == TRUE,
                     avg_perint$avg[avg_perint$interval %in% act$interval], 
                     act$steps)
 
+act_mm2 <- act %>% 
+    group_by(date) %>% 
+    summarize(steps_summed = sum(steps, na.rm=TRUE))
+
 # histogram of total steps taken
-ggplot(data= act, aes(steps)) + geom_histogram() +
-    ggtitle("Frequency of Steps Taken with Imputed Values")
+ggplot(data=act_mm2, aes(steps_summed)) + geom_histogram() +
+    ggtitle("Frequency of Steps Taken with Imputed Values") +
+    xlab("Steps")
 ```
 
 ![](PA1_template_files/figure-html/imputing-1.png)<!-- -->
@@ -88,13 +97,13 @@ ggplot(data= act, aes(steps)) + geom_histogram() +
 ### The mean and median of total number of steps per day with imputed values
 
 ```r
-apdi <- mean(act$steps)
-mpdi <- median(act$steps, na.rm = TRUE)
+apdi <- mean(act_mm2$steps_summed)
+mpdi <- median(act_mm2$steps_summed)
 ```
-The mean and median have not changed after the missing steps values are imputed.
+The mean and median have changed after the missing steps values are imputed.
   
-* Mean: 37.3825996  
-* Median: 0
+* Mean: 1.0766189\times 10^{4}  
+* Median: 1.0766189\times 10^{4}
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
